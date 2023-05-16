@@ -1,0 +1,23 @@
+# Byte files
+__pycache__/
+*.pyc
+
+# IDE settings
+.vscode/
+
+# Databases
+migrations/
+db.sqlite3
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.pdf
+*.synctex.gz
+*.toc

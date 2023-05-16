@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Roubo de cookie XSS</title>
+  </head>
+  
+  <body>
+    <!-- Input form -->
+    <form method="POST">
+      <input type="hidden" name="csrfmiddlewaretoken" value="XcLRZYvTcYygKJ2346zV4Ez8hSVDSgh1pBBuQdZf2EhfiNa9aVcILt2HwWcOdebU">
+      <p>
+    <label for="id_name">Name:</label>
+    <input type="text" name="name" maxlength="40" required id="id_name">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_email">Email:</label>
+    <input type="email" name="email" maxlength="254" required id="id_email">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_msg">Msg:</label>
+    <textarea name="msg" cols="40" rows="10" required id="id_msg">
+</textarea>
+    
+    
+      
+    
+  </p>
+      <div class="button">
+        <button type="submit">Enviar sua mensagem</button>
+      </div>
+    </form>
+      
+    <br><br>
+
+    <!-- Output table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Mensagem</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+      </tbody>
+    </table>
+  </body>
+</html>

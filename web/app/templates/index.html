@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Roubo de cookie XSS</title>
+  </head>
+  
+  <body>
+    <!-- Input form -->
+    <form method="POST">
+      {% csrf_token %}
+      {{form.as_p}}
+      <button type="submit">Enviar sua mensagem</button>
+    </form>
+      
+    <br><br>
+
+    <!-- Output table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Mensagem</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for comment in queryset %}
+        <tr>
+          <td>{{comment.name|safe}}</td>
+          <td>{{comment.email|safe}}</td>
+          <td>{{comment.msg|safe}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

